@@ -18,8 +18,9 @@ export class LocalFileStorageAdapter implements FileStoragePort {
     this.uploadDirectory = path.resolve(__dirname, "../../../temp");
   }
 
-  async saveFile(fileData: FileData, filename: string): Promise<void> {
+  async saveFile(fileData: FileData, filename: string): Promise<string> {
     const uploadDestination = path.resolve(this.uploadDirectory, filename);
     await pump(fileData.file, fs.createWriteStream(uploadDestination));
+    return uploadDestination;
   }
 }

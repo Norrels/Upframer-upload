@@ -14,7 +14,9 @@
   "dependencies": {
     "@fastify/multipart": "^9.0.3",
     "amqplib": "^0.10.8",
-    "fastify": "^5.5.0"
+    "dotenv": "^17.2.1",
+    "fastify": "^5.5.0",
+    "zod": "^4.0.17"
   },
   "devDependencies": {
     "@types/node": "^24.3.0",

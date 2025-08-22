@@ -4,5 +4,5 @@ export interface FileData {
 }
 
 export interface FileStoragePort {
-  saveFile(fileData: FileData, filename: string): Promise<void>;
+  saveFile(fileData: FileData, filename: string): Promise<string>;
 }

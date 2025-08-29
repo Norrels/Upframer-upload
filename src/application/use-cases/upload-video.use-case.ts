@@ -11,13 +11,13 @@ import {
   UploadVideoResponse,
 } from "../../domain/ports/upload-video.port.ts";
 
-import { MessageQueuePort } from "../../domain/ports/message-queue.port.ts";
-import { VideoJob } from "../../domain/entities/videoJob.ts";
+import { QueueProcessorPort } from "../../domain/ports/out/queue/queue-processor.port.ts";
+import { JobCreationgMessage } from "../../domain/entities/job-creation-message.ts";
 
 export class UploadVideoUseCase implements UploadVideoPort {
   constructor(
     private readonly fileStorage: FileStoragePort,
-    private readonly messageQueue: MessageQueuePort
+    private readonly messageQueue: QueueProcessorPort
   ) {}
 
   async execute(request: UploadVideoRequest): Promise<UploadVideoResponse> {
@@ -37,14 +37,15 @@ export class UploadVideoUseCase implements UploadVideoPort {
         video.getFileName()
       );
 
-      const videoJob: VideoJob = {
+      console.log("File saved at:", fileOutput);
+
+      const job: JobCreationgMessage = {
         jobId: videoId.getValue(),
-        videoUrl: video.getFileName(),
-        outputPath: fileOutput,
-        retries: 0,
+        videoPath: fileOutput,
+        videoName: video.getFileName(),
       };
 
-      await this.messageQueue.sendMessage("video-job-queue", videoJob);
+      await this.messageQueue.despatchCreatedMessage("video-job-queue", job);
 
       return {
         success: true,

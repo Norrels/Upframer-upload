@@ -1,5 +1,5 @@
 import { JobCreationgMessage } from "../../../../domain/entities/job-creation-message";
-import { JobRepository } from "../../../../domain/ports/out/persistence/jobRepository";
+import { JobRepository } from "../../../../domain/ports/out/persistence/job-repository";
 import { QueueProcessorPort } from "../../../../domain/ports/out/queue/queue-processor.port";
 import { createChannel } from "./broker";
 import { processeStatusUpdate } from "./consumer/job-status-upated";

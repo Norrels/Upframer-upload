@@ -1,0 +1,6 @@
+export interface VideoJobData {
+  id: string;
+  videoUrl: string;
+  outputPath: string;
+  status: string;
+}

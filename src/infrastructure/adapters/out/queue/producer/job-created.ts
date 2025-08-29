@@ -1,12 +1,12 @@
-import { getChannel } from "./rabbit";
-import { VideoJob } from "../../domain/entities/videoJob";
+import { Channel } from "amqplib";
+import { JobCreationgMessage } from "../../../../../domain/entities/job-creation-message";
 
-export async function sendToQueue(
+export async function despatchCreatedJob(
+  channel: Channel,
   queue: string,
-  job: VideoJob,
-  maxRetries: number = 3
+  job: JobCreationgMessage
 ) {
-  const channel = getChannel();
+  const maxRetries = 3;
   await channel.assertQueue(queue, { durable: true });
 
   for (let attempt = 1; attempt <= maxRetries; attempt++) {

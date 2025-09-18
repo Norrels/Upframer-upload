@@ -4,7 +4,7 @@ import { VideoName } from "../../domain/value-objects/video-name.ts";
 import {
   FileStoragePort,
   FileData,
-} from "../../domain/ports/file-storage.port.ts";
+} from "../../domain/ports/out/storage/file-storage.port.ts";
 import {
   UploadVideoPort,
   UploadVideoRequest,
@@ -12,12 +12,16 @@ import {
 } from "../../domain/ports/upload-video.port.ts";
 
 import { QueueProcessorPort } from "../../domain/ports/out/queue/queue-processor.port.ts";
-import { JobCreationgMessage } from "../../domain/entities/job-creation-message.ts";
+import { JobCreationgMessageSchema } from "../../domain/entities/job-creation-message.ts";
+import { JobRepository } from "../../domain/ports/out/persistence/job-repository.ts";
+import { JobEntity } from "../../domain/entities/job-entity.ts";
+import { config } from "../../../env.ts";
 
 export class UploadVideoUseCase implements UploadVideoPort {
   constructor(
     private readonly fileStorage: FileStoragePort,
-    private readonly messageQueue: QueueProcessorPort
+    private readonly messageQueue: QueueProcessorPort,
+    private readonly repository: JobRepository
   ) {}
 
   async execute(request: UploadVideoRequest): Promise<UploadVideoResponse> {
@@ -39,13 +43,26 @@ export class UploadVideoUseCase implements UploadVideoPort {
 
       console.log("File saved at:", fileOutput);
 
-      const job: JobCreationgMessage = {
+      const jobEntity: JobEntity = {
+        userId: 1,
+        userEmail: "matheus@gmail.com",
         jobId: videoId.getValue(),
-        videoPath: fileOutput,
         videoName: video.getFileName(),
+        videoPath: fileOutput,
       };
 
-      await this.messageQueue.despatchCreatedMessage("video-job-queue", job);
+      const jobMessage = JobCreationgMessageSchema.parse(jobEntity);
+
+      await this.repository.saveJob(jobEntity);
+
+      console.log("Salvou");
+
+      await this.messageQueue.despatchCreatedMessage(
+        config.RABBITMQ_QUEUE_CREATED,
+        jobMessage
+      );
+
+      console.log("Enviou para fila");
 
       return {
         success: true,

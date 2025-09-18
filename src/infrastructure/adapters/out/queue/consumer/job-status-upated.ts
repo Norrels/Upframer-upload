@@ -21,7 +21,10 @@ export async function processeStatusUpdate(
   jobRepository: JobRepository,
   channel: Channel
 ) {
-  channel.assertQueue(config.RABBITMQ_QUEUE_STATUS_CHANGE, { durable: true });
+  await channel.assertQueue(
+    config.RABBITMQ_QUEUE_STATUS_CHANGE,
+    { durable: true }
+  );
 
   return await channel.consume(
     config.RABBITMQ_QUEUE_STATUS_CHANGE,

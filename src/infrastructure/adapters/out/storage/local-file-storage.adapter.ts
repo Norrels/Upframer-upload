@@ -4,9 +4,9 @@ import { pipeline } from "node:stream";
 import { promisify } from "node:util";
 import { fileURLToPath } from "node:url";
 import {
-  FileStoragePort,
   FileData,
-} from "../../../../domain/ports/file-storage.port.ts";
+  FileStoragePort,
+} from "../../../../domain/ports/out/storage/file-storage.port";
 
 const pump = promisify(pipeline);
 
@@ -15,7 +15,7 @@ export class LocalFileStorageAdapter implements FileStoragePort {
 
   constructor() {
     const __dirname = path.dirname(fileURLToPath(import.meta.url));
-    this.uploadDirectory = path.resolve(__dirname, "../../../../temp");
+    this.uploadDirectory = path.resolve(__dirname, "../../../../../temp");
   }
 
   async saveFile(fileData: FileData, filename: string): Promise<string> {

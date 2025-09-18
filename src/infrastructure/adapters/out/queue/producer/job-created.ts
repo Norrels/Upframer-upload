@@ -8,20 +8,19 @@ export async function despatchCreatedJob(
 ) {
   const maxRetries = 3;
   await channel.assertQueue(queue, { durable: true });
+  console.log("Chegou aqui createdJOb");
 
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
-      await new Promise<void>((resolve, reject) => {
-        channel.sendToQueue(
-          queue,
-          Buffer.from(JSON.stringify(job)),
-          {},
-          (err: any) => {
-            if (err) return reject(err);
-            resolve();
-          }
-        );
-      });
+      const success = channel.sendToQueue(
+        queue,
+        Buffer.from(JSON.stringify(job)),
+        { persistent: true }
+      );
+
+      if (!success) {
+        throw new Error("Failed to send message to queue");
+      }
 
       console.log(`Message sent on attempt ${attempt}:`, job.jobId);
       return;
@@ -30,7 +29,7 @@ export async function despatchCreatedJob(
 
       if (attempt === maxRetries) {
         throw new Error(
-          `Failed to connect to RabbitMQ after ${maxRetries} attempt: ${err}`
+          `Failed to send message to RabbitMQ after ${maxRetries} attempts: ${err}`
         );
       }
 

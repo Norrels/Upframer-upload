@@ -24,7 +24,9 @@ export default defineConfig({
         '**/env.ts',
         'src/server.ts',
         'src/config/**',
-        'src/infrastructure/adapters/out/persistence/schemas/**'
+        'src/infrastructure/**',
+        'src/domain/ports/**',
+        '**/__tests__/**'
       ]
     },
 

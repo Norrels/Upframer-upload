@@ -2,21 +2,29 @@ import { fastify } from "fastify";
 import { fastifyMultipart } from "@fastify/multipart";
 import { UploadVideoUseCase } from "./application/use-cases/upload-video.use-case.ts";
 import { UploadVideoPort } from "./domain/ports/upload-video.port.ts";
-import { LocalFileStorageAdapter } from "./infrastructure/adapters/out/local-file-storage.adapter.ts";
-import { RabbitMQAdapter } from "./infrastructure/adapters/out/rabbitmq-message-queue.adapter.ts";
+import { LocalFileStorageAdapter } from "./infrastructure/adapters/out/storage/local-file-storage.adapter.ts";
 import { UploadControllerAdapter } from "./infrastructure/adapters/in/upload-controller.adapter.ts";
-import { closeRabbit, connectRabbit } from "./infrastructure/rabbit/rabbit.ts";
 import { config } from "../env.ts";
+import { UpdateStatusUseCase } from "./application/use-cases/update-status.use-case.ts";
+import { RabbitMQAdapter } from "./infrastructure/adapters/out/queue/rabbitmq.adapter.ts";
+import {
+  closeRabbit,
+  connectRabbit,
+} from "./infrastructure/adapters/out/queue/broker.ts";
+import { JobRepositoryDrizzle } from "./infrastructure/adapters/out/persistence/job-repository.adapter.ts";
 
 const app = fastify();
 
+const repository = new JobRepositoryDrizzle();
 const fileStorage = new LocalFileStorageAdapter();
-const messageQueue = new RabbitMQAdapter();
+const messageQueue = new RabbitMQAdapter(repository);
 const uploadVideoUseCase: UploadVideoPort = new UploadVideoUseCase(
   fileStorage,
-  messageQueue
+  messageQueue,
+  repository
 );
 const uploadController = new UploadControllerAdapter(uploadVideoUseCase);
+const updateStatusUseCase = new UpdateStatusUseCase(messageQueue);
 
 app.register(fastifyMultipart, {
   limits: {
@@ -31,6 +39,7 @@ app.post("/api/upload-video", async (request, reply) => {
 const start = async () => {
   try {
     await connectRabbit();
+    await updateStatusUseCase.execute();
     await app.listen({ port: config.PORT });
     console.log("Server running on http://localhost:" + config.PORT);
   } catch (err) {

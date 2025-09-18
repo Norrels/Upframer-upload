@@ -26,6 +26,7 @@ export class UploadControllerAdapter {
       message: "Video uploaded successfully",
       videoId: result.videoId,
       filename: result.filename,
+      status: "pending",
     });
   }
 }

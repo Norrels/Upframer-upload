@@ -4,20 +4,24 @@ import { VideoName } from "../../domain/value-objects/video-name.ts";
 import {
   FileStoragePort,
   FileData,
-} from "../../domain/ports/file-storage.port.ts";
+} from "../../domain/ports/out/storage/file-storage.port.ts";
 import {
   UploadVideoPort,
   UploadVideoRequest,
   UploadVideoResponse,
 } from "../../domain/ports/upload-video.port.ts";
 
-import { MessageQueuePort } from "../../domain/ports/message-queue.port.ts";
-import { VideoJob } from "../../domain/entities/videoJob.ts";
+import { QueueProcessorPort } from "../../domain/ports/out/queue/queue-processor.port.ts";
+import { JobCreationgMessageSchema } from "../../domain/entities/job-creation-message.ts";
+import { JobRepository } from "../../domain/ports/out/persistence/job-repository.ts";
+import { JobEntity } from "../../domain/entities/job-entity.ts";
+import { config } from "../../../env.ts";
 
 export class UploadVideoUseCase implements UploadVideoPort {
   constructor(
     private readonly fileStorage: FileStoragePort,
-    private readonly messageQueue: MessageQueuePort
+    private readonly messageQueue: QueueProcessorPort,
+    private readonly repository: JobRepository
   ) {}
 
   async execute(request: UploadVideoRequest): Promise<UploadVideoResponse> {
@@ -37,14 +41,28 @@ export class UploadVideoUseCase implements UploadVideoPort {
         video.getFileName()
       );
 
-      const videoJob: VideoJob = {
+      console.log("File saved at:", fileOutput);
+
+      const jobEntity: JobEntity = {
+        userId: 1,
+        userEmail: "matheus@gmail.com",
         jobId: videoId.getValue(),
-        videoUrl: video.getFileName(),
-        outputPath: fileOutput,
-        retries: 0,
+        videoName: video.getFileName(),
+        videoPath: fileOutput,
       };
 
-      await this.messageQueue.sendMessage("video-job-queue", videoJob);
+      const jobMessage = JobCreationgMessageSchema.parse(jobEntity);
+
+      await this.repository.saveJob(jobEntity);
+
+      console.log("Salvou");
+
+      await this.messageQueue.despatchCreatedMessage(
+        config.RABBITMQ_QUEUE_CREATED,
+        jobMessage
+      );
+
+      console.log("Enviou para fila");
 
       return {
         success: true,

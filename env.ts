@@ -6,7 +6,7 @@ dotenv.config();
 const envSchema = z.object({
   PORT: z.coerce.number().default(3000),
   RABBITMQ_URL: z.url("Invalid RabbitMQ URL"),
-  RABBITMQ_QUEUE_STATUS_CHANGE: z.string().default("job-status-change"),
+  RABBITMQ_QUEUE_STATUS_CHANGE: z.string().default("video-processing-result"),
   RABBITMQ_QUEUE_CREATED: z.string().default("job-creation"),
   DATABASE_URL: z.url("Invalid Database URL"),
 });

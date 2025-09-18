@@ -11,7 +11,7 @@ export class JobRepositoryDrizzle implements JobRepository {
     const result = await db
       .select({
         id: jobsTable.jobId,
-        videoUrl: jobsTable.videoUrl,
+        videoUrl: jobsTable.videoPath,
         outputPath: jobsTable.outputPath,
         status: jobsTable.status,
       })
@@ -23,11 +23,16 @@ export class JobRepositoryDrizzle implements JobRepository {
     return result[0] as VideoJobData;
   }
 
-  async updateJob(id: string, status: JobStatus): Promise<void> {
+  async updateJob(
+    id: string,
+    status: JobStatus,
+    outputPath?: string
+  ): Promise<void> {
+    console.log(status);
     await db
       .update(jobsTable)
-      .set({ status: status, updatedAt: new Date() })
-      .where(eq(jobsTable.id, id));
+      .set({ status: status, outputPath: outputPath, updatedAt: new Date() })
+      .where(eq(jobsTable.jobId, id));
   }
 
   async saveJob(jobData: JobEntity): Promise<void> {
@@ -38,7 +43,7 @@ export class JobRepositoryDrizzle implements JobRepository {
     const results = await db
       .select({
         id: jobsTable.jobId,
-        videoUrl: jobsTable.videoUrl,
+        videoUrl: jobsTable.videoPath,
         outputPath: jobsTable.outputPath,
         status: jobsTable.status,
       })

@@ -14,17 +14,20 @@ export async function processJobMessage(
     throw new Error(`Invalid message data: ${validatedMessage.error.message}`);
   }
   const validateMessage = validatedMessage.data;
-  await jobRepository.updateJob(validateMessage.id, validateMessage.status);
+  await jobRepository.updateJob(
+    validateMessage.jobId,
+    validateMessage.status,
+    validateMessage.outputPath
+  );
 }
 
 export async function processeStatusUpdate(
   jobRepository: JobRepository,
   channel: Channel
 ) {
-  await channel.assertQueue(
-    config.RABBITMQ_QUEUE_STATUS_CHANGE,
-    { durable: true }
-  );
+  await channel.assertQueue(config.RABBITMQ_QUEUE_STATUS_CHANGE, {
+    durable: true,
+  });
 
   return await channel.consume(
     config.RABBITMQ_QUEUE_STATUS_CHANGE,

@@ -12,11 +12,12 @@ import {
   connectRabbit,
 } from "./infrastructure/adapters/out/queue/broker.ts";
 import { JobRepositoryDrizzle } from "./infrastructure/adapters/out/persistence/job-repository.adapter.ts";
+import { S3FileStorageAdapter } from "./infrastructure/adapters/out/storage/s3-file-storage.adapter.ts";
 
 const app = fastify();
 
 const repository = new JobRepositoryDrizzle();
-const fileStorage = new LocalFileStorageAdapter();
+const fileStorage = new S3FileStorageAdapter();
 const messageQueue = new RabbitMQAdapter(repository);
 const uploadVideoUseCase: UploadVideoPort = new UploadVideoUseCase(
   fileStorage,
@@ -40,7 +41,7 @@ const start = async () => {
   try {
     await connectRabbit();
     await updateStatusUseCase.execute();
-    await app.listen({ port: config.PORT });
+    await app.listen({ host: "0.0.0.0", port: config.PORT });
     console.log("Server running on http://localhost:" + config.PORT);
   } catch (err) {
     console.error(err);

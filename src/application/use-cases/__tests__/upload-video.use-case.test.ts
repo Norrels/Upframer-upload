@@ -6,7 +6,7 @@ import { JobRepository } from "../../../domain/ports/out/persistence/job-reposit
 import { UploadVideoRequest } from "../../../domain/ports/upload-video.port";
 import { Readable } from "stream";
 
-vi.mock("../../../../env.ts", () => ({
+vi.mock("../../../env", () => ({
   config: {
     RABBITMQ_QUEUE_CREATED: "test-queue",
   },

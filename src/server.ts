@@ -33,6 +33,10 @@ app.register(fastifyMultipart, {
   },
 });
 
+app.get("/health", () => {
+  return "OK";
+});
+
 app.post("/api/upload-video", async (request, reply) => {
   await uploadController.handle(request, reply);
 });

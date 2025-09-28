@@ -12,7 +12,7 @@ RUN npm ci --omit=dev
 FROM base AS builder
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci   # instala inclusive devDependencies (typescript, vitest, etc.)
+RUN npm ci
 COPY . .
 RUN npm run build
 
@@ -24,13 +24,14 @@ ENV PORT=3333
 ENV HOSTNAME=0.0.0.0
 
 RUN addgroup --system --gid 1001 nodejs \
-  && adduser --system --uid 1001 api
+    && adduser --system --uid 1001 api
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package*.json ./
 
-RUN chown -R api:nodejs /app
+RUN chown -R api:nodejs /app && chmod -R 755 /app
+
 USER api
 
 EXPOSE 3333

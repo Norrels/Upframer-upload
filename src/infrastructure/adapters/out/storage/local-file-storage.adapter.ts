@@ -2,7 +2,6 @@ import path from "node:path";
 import fs from "node:fs";
 import { pipeline } from "node:stream";
 import { promisify } from "node:util";
-import { fileURLToPath } from "node:url";
 import {
   FileData,
   FileStoragePort,
@@ -14,7 +13,6 @@ export class LocalFileStorageAdapter implements FileStoragePort {
   private readonly uploadDirectory: string;
 
   constructor() {
-    const __dirname = path.dirname(fileURLToPath(import.meta.url));
     this.uploadDirectory = path.resolve(__dirname, "../../../../../temp");
   }
 

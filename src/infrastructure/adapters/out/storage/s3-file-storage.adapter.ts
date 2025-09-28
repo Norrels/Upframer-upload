@@ -18,7 +18,9 @@ export class S3FileStorageAdapter implements FileStoragePort {
       credentials: {
         accessKeyId: config.AWS_ACCESS_KEY_ID,
         secretAccessKey: config.AWS_SECRET_ACCESS_KEY,
-        ...(config.AWS_SESSION_TOKEN && { sessionToken: config.AWS_SESSION_TOKEN }),
+        ...(config.AWS_SESSION_TOKEN && {
+          sessionToken: config.AWS_SESSION_TOKEN,
+        }),
       },
     });
   }
@@ -54,27 +56,29 @@ export class S3FileStorageAdapter implements FileStoragePort {
 
       const readable = stream as Readable;
 
-      readable.on('data', (chunk: Buffer) => {
+      readable.on("data", (chunk: Buffer) => {
         chunks.push(chunk);
       });
 
-      readable.on('end', () => {
+      readable.on("end", () => {
         resolve(Buffer.concat(chunks));
       });
 
-      readable.on('error', (error) => {
+      readable.on("error", (error) => {
         reject(error);
       });
     });
   }
 
   private getContentType(filename: string): string {
-    const extension = filename.toLowerCase().split('.').pop();
+    const extension = filename.toLowerCase().split(".").pop();
 
-    if (extension === 'mp4') {
-      return 'video/mp4';
+    if (extension === "mp4") {
+      return "video/mp4";
     }
 
-    throw new Error(`Invalid file type: ${extension}. Only MP4 videos are allowed.`);
+    throw new Error(
+      `Invalid file type: ${extension}. Only MP4 videos are allowed.`
+    );
   }
 }

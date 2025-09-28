@@ -1,5 +1,5 @@
-import { VideoId } from "../value-objects/video-id.ts";
-import { VideoName } from "../value-objects/video-name.ts";
+import { VideoId } from "../value-objects/video-id";
+import { VideoName } from "../value-objects/video-name";
 
 export class Video {
   constructor(

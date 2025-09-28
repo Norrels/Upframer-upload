@@ -12,6 +12,7 @@
     "dev": "tsx watch src/server.ts",
     "migrate:generate": "drizzle-kit generate --config=./src/config/drizzle.config.ts",
     "migrate:migrate": "drizzle-kit migrate --config=./src/config/drizzle.config.ts",
+    "migrate:push": "drizzle-kit push --config=./src/config/drizzle.config.ts",
     "studio": "drizzle-kit studio  --config=./src/config/drizzle.config.ts"
   },
   "keywords": [],

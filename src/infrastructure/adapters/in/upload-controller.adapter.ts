@@ -1,5 +1,5 @@
 import { FastifyRequest, FastifyReply } from "fastify";
-import { UploadVideoPort } from "../../../domain/ports/upload-video.port.ts";
+import { UploadVideoPort } from "../../../domain/ports/upload-video.port";
 
 export class UploadControllerAdapter {
   constructor(private readonly uploadVideoUseCase: UploadVideoPort) {}

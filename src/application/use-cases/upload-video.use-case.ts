@@ -1,21 +1,21 @@
-import { Video } from "../../domain/entities/video.ts";
-import { VideoId } from "../../domain/value-objects/video-id.ts";
-import { VideoName } from "../../domain/value-objects/video-name.ts";
+import { Video } from "../../domain/entities/video";
+import { VideoId } from "../../domain/value-objects/video-id";
+import { VideoName } from "../../domain/value-objects/video-name";
 import {
   FileStoragePort,
   FileData,
-} from "../../domain/ports/out/storage/file-storage.port.ts";
+} from "../../domain/ports/out/storage/file-storage.port";
 import {
   UploadVideoPort,
   UploadVideoRequest,
   UploadVideoResponse,
-} from "../../domain/ports/upload-video.port.ts";
+} from "../../domain/ports/upload-video.port";
 
-import { QueueProcessorPort } from "../../domain/ports/out/queue/queue-processor.port.ts";
-import { JobCreationgMessageSchema } from "../../domain/entities/job-creation-message.ts";
-import { JobRepository } from "../../domain/ports/out/persistence/job-repository.ts";
-import { JobEntity } from "../../domain/entities/job-entity.ts";
-import { config } from "../../../env.ts";
+import { QueueProcessorPort } from "../../domain/ports/out/queue/queue-processor.port";
+import { JobCreationgMessageSchema } from "../../domain/entities/job-creation-message";
+import { JobRepository } from "../../domain/ports/out/persistence/job-repository";
+import { JobEntity } from "../../domain/entities/job-entity";
+import { config } from "../../env";
 
 export class UploadVideoUseCase implements UploadVideoPort {
   constructor(

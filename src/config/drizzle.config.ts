@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { config } from "../../env";
+import { config } from "../env";
 import { defineConfig } from "drizzle-kit";
 
 export default defineConfig({

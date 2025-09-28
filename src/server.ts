@@ -1,18 +1,18 @@
 import { fastify } from "fastify";
 import { fastifyMultipart } from "@fastify/multipart";
-import { UploadVideoUseCase } from "./application/use-cases/upload-video.use-case.ts";
-import { UploadVideoPort } from "./domain/ports/upload-video.port.ts";
-import { LocalFileStorageAdapter } from "./infrastructure/adapters/out/storage/local-file-storage.adapter.ts";
-import { UploadControllerAdapter } from "./infrastructure/adapters/in/upload-controller.adapter.ts";
-import { config } from "../env.ts";
-import { UpdateStatusUseCase } from "./application/use-cases/update-status.use-case.ts";
-import { RabbitMQAdapter } from "./infrastructure/adapters/out/queue/rabbitmq.adapter.ts";
+import { UploadVideoUseCase } from "./application/use-cases/upload-video.use-case";
+import { UploadVideoPort } from "./domain/ports/upload-video.port";
+import { LocalFileStorageAdapter } from "./infrastructure/adapters/out/storage/local-file-storage.adapter";
+import { UploadControllerAdapter } from "./infrastructure/adapters/in/upload-controller.adapter";
+import { config } from "./env";
+import { UpdateStatusUseCase } from "./application/use-cases/update-status.use-case";
+import { RabbitMQAdapter } from "./infrastructure/adapters/out/queue/rabbitmq.adapter";
 import {
   closeRabbit,
   connectRabbit,
-} from "./infrastructure/adapters/out/queue/broker.ts";
-import { JobRepositoryDrizzle } from "./infrastructure/adapters/out/persistence/job-repository.adapter.ts";
-import { S3FileStorageAdapter } from "./infrastructure/adapters/out/storage/s3-file-storage.adapter.ts";
+} from "./infrastructure/adapters/out/queue/broker";
+import { JobRepositoryDrizzle } from "./infrastructure/adapters/out/persistence/job-repository.adapter";
+import { S3FileStorageAdapter } from "./infrastructure/adapters/out/storage/s3-file-storage.adapter";
 
 const app = fastify();
 

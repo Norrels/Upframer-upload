@@ -1,5 +1,5 @@
 import amqplib, { Channel } from "amqplib";
-import { config } from "../../../../env";
+import { config } from "../../../../../env";
 
 class RabbitMQBroker {
   private connection: any;

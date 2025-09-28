@@ -3,7 +3,7 @@
     "module": "CommonJS",
     "target": "ES2020",
     "moduleResolution": "node",
-    "rootDir": "./",
+    "rootDir": "./src",
     "outDir": "./dist",
     "declaration": true,
     "declarationMap": true,
@@ -16,6 +16,6 @@
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true
   },
-  "include": ["src", "env.ts"],
+  "include": ["src"],
   "exclude": ["node_modules", "dist"]
 }

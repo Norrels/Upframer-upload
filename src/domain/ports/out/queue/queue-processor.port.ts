@@ -1,7 +1,7 @@
 import { JobCreationgMessage } from "../../../entities/job-creation-message";
 
 export interface QueueProcessorPort {
-  processorUpdateStatusMessage();
+  processorUpdateStatusMessage(): void;
 
-  despatchCreatedMessage(queue: string, job: JobCreationgMessage);
+  despatchCreatedMessage(queue: string, job: JobCreationgMessage): void;
 }

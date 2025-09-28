@@ -37,7 +37,7 @@ class RabbitMQBroker {
     }
   }
 
-  async createChannel(): Channel {
+  async createChannel(): Promise<Channel> {
     if (!this.connection) {
       await this.connect();
     }
@@ -62,7 +62,7 @@ export async function closeRabbit(): Promise<void> {
   await rabbitMQ.close();
 }
 
-export async function createChannel(): Channel {
+export async function createChannel(): Promise<Channel> {
   return await rabbitMQ.createChannel();
 }
 

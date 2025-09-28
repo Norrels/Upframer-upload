@@ -4,7 +4,7 @@ import { UploadVideoUseCase } from "./application/use-cases/upload-video.use-cas
 import { UploadVideoPort } from "./domain/ports/upload-video.port";
 import { LocalFileStorageAdapter } from "./infrastructure/adapters/out/storage/local-file-storage.adapter";
 import { UploadControllerAdapter } from "./infrastructure/adapters/in/upload-controller.adapter";
-import { config } from "../env";
+import { config } from "./env";
 import { UpdateStatusUseCase } from "./application/use-cases/update-status.use-case";
 import { RabbitMQAdapter } from "./infrastructure/adapters/out/queue/rabbitmq.adapter";
 import {

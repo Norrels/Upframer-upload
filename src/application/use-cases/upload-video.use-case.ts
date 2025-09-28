@@ -15,7 +15,7 @@ import { QueueProcessorPort } from "../../domain/ports/out/queue/queue-processor
 import { JobCreationgMessageSchema } from "../../domain/entities/job-creation-message";
 import { JobRepository } from "../../domain/ports/out/persistence/job-repository";
 import { JobEntity } from "../../domain/entities/job-entity";
-import { config } from "../../../env";
+import { config } from "../../env";
 
 export class UploadVideoUseCase implements UploadVideoPort {
   constructor(

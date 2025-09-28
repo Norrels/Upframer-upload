@@ -1,4 +1,4 @@
-import { config } from "../../../../../../env";
+import { config } from "../../../../../env";
 import { UpdatedStatusMessageSchema } from "../../../../../domain/entities/update-status-message";
 import { JobRepository } from "../../../../../domain/ports/out/persistence/job-repository";
 import { validateMessage } from "../../../../../utils/validate-message";

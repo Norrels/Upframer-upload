@@ -4,7 +4,7 @@ import {
   FileData,
   FileStoragePort,
 } from "../../../../domain/ports/out/storage/file-storage.port";
-import { config } from "../../../../../env";
+import { config } from "../../../../env";
 
 export class S3FileStorageAdapter implements FileStoragePort {
   private readonly s3Client: S3Client;

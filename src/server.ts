@@ -2,7 +2,6 @@ import { fastify } from "fastify";
 import { fastifyMultipart } from "@fastify/multipart";
 import { UploadVideoUseCase } from "./application/use-cases/upload-video.use-case";
 import { UploadVideoPort } from "./domain/ports/upload-video.port";
-import { LocalFileStorageAdapter } from "./infrastructure/adapters/out/storage/local-file-storage.adapter";
 import { UploadControllerAdapter } from "./infrastructure/adapters/in/upload-controller.adapter";
 import { config } from "./env";
 import { UpdateStatusUseCase } from "./application/use-cases/update-status.use-case";
@@ -13,6 +12,7 @@ import {
 } from "./infrastructure/adapters/out/queue/broker";
 import { JobRepositoryDrizzle } from "./infrastructure/adapters/out/persistence/job-repository.adapter";
 import { S3FileStorageAdapter } from "./infrastructure/adapters/out/storage/s3-file-storage.adapter";
+import { authMiddleware } from "./infrastructure/middleware/auth.middleware";
 
 const app = fastify();
 
@@ -37,7 +37,9 @@ app.get("/health", () => {
   return "OK";
 });
 
-app.post("/api/upload-video", async (request, reply) => {
+app.post("/api/upload-video", {
+  preHandler: authMiddleware
+}, async (request, reply) => {
   await uploadController.handle(request, reply);
 });
 

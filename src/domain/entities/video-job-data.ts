@@ -3,4 +3,5 @@ export interface VideoJobData {
   videoUrl: string;
   outputPath: string;
   status: string;
+  createdAt: Date;
 }

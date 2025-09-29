@@ -14,9 +14,10 @@ export class JobRepositoryDrizzle implements JobRepository {
         videoUrl: jobsTable.videoPath,
         outputPath: jobsTable.outputPath,
         status: jobsTable.status,
+        createdAt: jobsTable.createdAt,
       })
       .from(jobsTable)
-      .where(eq(jobsTable.id, jobId))
+      .where(eq(jobsTable.jobId, jobId))
       .limit(1);
 
     if (result.length === 0) return null;
@@ -46,6 +47,7 @@ export class JobRepositoryDrizzle implements JobRepository {
         videoUrl: jobsTable.videoPath,
         outputPath: jobsTable.outputPath,
         status: jobsTable.status,
+        createdAt: jobsTable.createdAt,
       })
       .from(jobsTable)
       .where(eq(jobsTable.userId, userId));

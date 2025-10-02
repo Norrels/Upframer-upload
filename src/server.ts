@@ -17,12 +17,14 @@ import { GetUserUploadsUseCase } from "./application/use-cases/get-user-uploads.
 import { GetJobStatusUseCase } from "./application/use-cases/get-job-status.use-case";
 import { GetUserUploadsControllerAdapter } from "./infrastructure/adapters/in/get-user-uploads-controller.adapter";
 import { GetJobStatusControllerAdapter } from "./infrastructure/adapters/in/get-job-status-controller.adapter";
+import { EmailNotificationAdapter } from "./infrastructure/adapters/out/notification/email-notification.adapter";
 
 const app = fastify();
 
 const repository = new JobRepositoryDrizzle();
 const fileStorage = new S3FileStorageAdapter();
-const messageQueue = new RabbitMQAdapter(repository);
+const emailNotification = new EmailNotificationAdapter();
+const messageQueue = new RabbitMQAdapter(repository, emailNotification);
 const uploadVideoUseCase: UploadVideoPort = new UploadVideoUseCase(
   fileStorage,
   messageQueue,
@@ -33,8 +35,12 @@ const updateStatusUseCase = new UpdateStatusUseCase(messageQueue);
 
 const getUserUploadsUseCase = new GetUserUploadsUseCase(repository);
 const getJobStatusUseCase = new GetJobStatusUseCase(repository);
-const getUserUploadsController = new GetUserUploadsControllerAdapter(getUserUploadsUseCase);
-const getJobStatusController = new GetJobStatusControllerAdapter(getJobStatusUseCase);
+const getUserUploadsController = new GetUserUploadsControllerAdapter(
+  getUserUploadsUseCase
+);
+const getJobStatusController = new GetJobStatusControllerAdapter(
+  getJobStatusUseCase
+);
 
 app.register(fastifyMultipart, {
   limits: {
@@ -46,23 +52,55 @@ app.get("/health", () => {
   return "OK";
 });
 
-app.post("/api/upload-video", {
-  preHandler: authMiddleware
-}, async (request, reply) => {
-  await uploadController.handle(request, reply);
-});
+app.post(
+  "/api/upload-video",
+  {
+    preHandler: authMiddleware,
+  },
+  async (request, reply) => {
+    await uploadController.handle(request, reply);
+  }
+);
 
-app.get("/api/my-uploads", {
-  preHandler: authMiddleware
-}, async (request, reply) => {
-  await getUserUploadsController.handle(request, reply);
-});
+app.get(
+  "/api/my-uploads",
+  {
+    preHandler: authMiddleware,
+  },
+  async (request, reply) => {
+    await getUserUploadsController.handle(request, reply);
+  }
+);
 
-app.get("/api/job/:jobId/status", {
-  preHandler: authMiddleware
-}, async (request, reply) => {
-  await getJobStatusController.handle(request, reply);
-});
+app.get(
+  "/api/job/:jobId/status",
+  {
+    preHandler: authMiddleware,
+  },
+  async (request, reply) => {
+    await getJobStatusController.handle(request, reply);
+  }
+);
+
+app.get(
+  "/api/my-uploads",
+  {
+    preHandler: authMiddleware,
+  },
+  async (request, reply) => {
+    await getUserUploadsController.handle(request, reply);
+  }
+);
+
+app.get(
+  "/api/job/:jobId/status",
+  {
+    preHandler: authMiddleware,
+  },
+  async (request, reply) => {
+    await getJobStatusController.handle(request, reply);
+  }
+);
 
 const start = async () => {
   try {

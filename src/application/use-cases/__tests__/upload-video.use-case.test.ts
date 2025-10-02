@@ -40,6 +40,7 @@ describe("UploadVideoUseCase", () => {
       updateJob: vi.fn(),
       findJobsByUserId: vi.fn(),
       findJobById: vi.fn(),
+      getUserEmailByJobId: vi.fn(),
     };
 
     uploadVideoUseCase = new UploadVideoUseCase(

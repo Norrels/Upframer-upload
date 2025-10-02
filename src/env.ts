@@ -4,7 +4,9 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const envSchema = z.object({
-  NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
+  NODE_ENV: z
+    .enum(["development", "production", "test"])
+    .default("development"),
   PORT: z.coerce.number().default(3333),
   RABBITMQ_URL: z.url("Invalid RabbitMQ URL"),
   RABBITMQ_QUEUE_STATUS_CHANGE: z.string().default("video-processing-result"),
@@ -16,6 +18,11 @@ const envSchema = z.object({
   AWS_REGION: z.string().min(1, "AWS_REGION is required"),
   AWS_S3_BUCKET_NAME: z.string().min(1, "AWS_S3_BUCKET_NAME is required"),
   JWT_SECRET: z.string().min(1, "JWT_SECRET is required"),
+  SMTP_HOST: z.string().min(1, "SMTP_HOST is required"),
+  SMTP_PORT: z.coerce.number().default(587),
+  SMTP_SECURE: z.coerce.boolean().default(false),
+  SMTP_USER: z.string().min(1, "SMTP_USER is required"),
+  SMTP_PASS: z.string().min(1, "SMTP_PASS is required"),
 });
 
 const env = envSchema.safeParse(process.env);

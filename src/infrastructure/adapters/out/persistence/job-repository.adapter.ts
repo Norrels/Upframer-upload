@@ -54,4 +54,17 @@ export class JobRepositoryDrizzle implements JobRepository {
 
     return results as VideoJobData[];
   }
+
+  async getUserEmailByJobId(jobId: string): Promise<string | null> {
+    const result = await db
+      .select({
+        userEmail: jobsTable.userEmail,
+      })
+      .from(jobsTable)
+      .where(eq(jobsTable.jobId, jobId))
+      .limit(1);
+
+    if (result.length === 0) return null;
+    return result[0]?.userEmail || null;
+  }
 }

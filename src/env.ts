@@ -15,6 +15,7 @@ const envSchema = z.object({
   AWS_SESSION_TOKEN: z.string().optional(), // OBSERVAÇÃO: Pode ser necessário para credenciais temporárias
   AWS_REGION: z.string().min(1, "AWS_REGION is required"),
   AWS_S3_BUCKET_NAME: z.string().min(1, "AWS_S3_BUCKET_NAME is required"),
+  JWT_SECRET: z.string().min(1, "JWT_SECRET is required"),
 });
 
 const env = envSchema.safeParse(process.env);

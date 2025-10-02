@@ -54,6 +54,8 @@ describe("UploadVideoUseCase", () => {
       const mockRequest: UploadVideoRequest = {
         filename: "test-video.mp4",
         file: createMockReadableStream("fake video content"),
+        userId: "123",
+        userEmail: "test@example.com",
       };
 
       const mockFilePath = "/uploads/test-video-123.mp4";
@@ -75,6 +77,8 @@ describe("UploadVideoUseCase", () => {
       const mockRequest: UploadVideoRequest = {
         filename: "my-video.mp4",
         file: createMockReadableStream("video data"),
+        userId: "456",
+        userEmail: "user@example.com",
       };
 
       mockFileStorage.saveFile = vi.fn().mockResolvedValue("/path/to/file");
@@ -98,6 +102,8 @@ describe("UploadVideoUseCase", () => {
       const mockRequest: UploadVideoRequest = {
         filename: "test.mp4",
         file: createMockReadableStream("data"),
+        userId: "789",
+        userEmail: "test@example.com",
       };
 
       mockFileStorage.saveFile = vi.fn().mockResolvedValue("/uploads/test.mp4");
@@ -109,8 +115,8 @@ describe("UploadVideoUseCase", () => {
       await uploadVideoUseCase.execute(mockRequest);
 
       expect(mockRepository.saveJob).toHaveBeenCalledWith({
-        userId: 1,
-        userEmail: "matheus@gmail.com",
+        userId: 789,
+        userEmail: "test@example.com",
         jobId: expect.any(String),
         videoName: expect.stringContaining("test.mp4"),
         videoPath: "/uploads/test.mp4",
@@ -121,6 +127,8 @@ describe("UploadVideoUseCase", () => {
       const mockRequest: UploadVideoRequest = {
         filename: "queue-test.mp4",
         file: createMockReadableStream("data"),
+        userId: "queue123",
+        userEmail: "queue@example.com",
       };
 
       mockFileStorage.saveFile = vi
@@ -149,6 +157,8 @@ describe("UploadVideoUseCase", () => {
       const mockRequest: UploadVideoRequest = {
         filename: "test.mp4",
         file: createMockReadableStream("data"),
+        userId: "error123",
+        userEmail: "error@example.com",
       };
 
       const storageError = new Error("Storage service unavailable");
@@ -166,6 +176,8 @@ describe("UploadVideoUseCase", () => {
       const mockRequest: UploadVideoRequest = {
         filename: "test.mp4",
         file: createMockReadableStream("data"),
+        userId: "repo456",
+        userEmail: "repo@example.com",
       };
 
       mockFileStorage.saveFile = vi.fn().mockResolvedValue("/path/to/file");
@@ -182,6 +194,8 @@ describe("UploadVideoUseCase", () => {
       const mockRequest: UploadVideoRequest = {
         filename: "test.mp4",
         file: createMockReadableStream("data"),
+        userId: "queue789",
+        userEmail: "queuefail@example.com",
       };
 
       mockFileStorage.saveFile = vi.fn().mockResolvedValue("/path/to/file");
@@ -201,6 +215,8 @@ describe("UploadVideoUseCase", () => {
       const mockRequest: UploadVideoRequest = {
         filename: "test.mp4",
         file: createMockReadableStream("data"),
+        userId: "unknown101",
+        userEmail: "unknown@example.com",
       };
 
       mockFileStorage.saveFile = vi.fn().mockRejectedValue("String error");
@@ -215,6 +231,8 @@ describe("UploadVideoUseCase", () => {
       const mockRequest: UploadVideoRequest = {
         filename: "invalid-file.txt",
         file: createMockReadableStream("data"),
+        userId: "invalid202",
+        userEmail: "invalid@example.com",
       };
 
       const result = await uploadVideoUseCase.execute(mockRequest);
@@ -228,6 +246,8 @@ describe("UploadVideoUseCase", () => {
       const mockRequest: UploadVideoRequest = {
         filename: "flow-test.mp4",
         file: createMockReadableStream("data"),
+        userId: "flow303",
+        userEmail: "flow@example.com",
       };
 
       const callOrder: string[] = [];

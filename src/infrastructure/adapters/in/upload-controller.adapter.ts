@@ -12,9 +12,16 @@ export class UploadControllerAdapter {
       return;
     }
 
+    if (!request.user) {
+      reply.status(401).send({ error: "User not authenticated" });
+      return;
+    }
+
     const result = await this.uploadVideoUseCase.execute({
       filename: data.filename,
       file: data.file,
+      userId: request.user.userId,
+      userEmail: request.user.email,
     });
 
     if (!result.success) {

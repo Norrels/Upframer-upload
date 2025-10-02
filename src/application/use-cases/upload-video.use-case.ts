@@ -44,8 +44,8 @@ export class UploadVideoUseCase implements UploadVideoPort {
       console.log("File saved at:", fileOutput);
 
       const jobEntity: JobEntity = {
-        userId: 1,
-        userEmail: "matheus@gmail.com",
+        userId: parseInt(request.userId),
+        userEmail: request.userEmail,
         jobId: videoId.getValue(),
         videoName: video.getFileName(),
         videoPath: fileOutput,

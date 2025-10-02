@@ -8,13 +8,11 @@ export class UploadControllerAdapter {
     const data = await request.file();
 
     if (!data) {
-      reply.status(400).send({ error: "No file uploaded" });
-      return;
+      return reply.status(400).send({ error: "No file uploaded" });
     }
 
     if (!request.user) {
-      reply.status(401).send({ error: "User not authenticated" });
-      return;
+      return reply.status(401).send({ error: "User not authenticated" });
     }
 
     const result = await this.uploadVideoUseCase.execute({
@@ -25,8 +23,7 @@ export class UploadControllerAdapter {
     });
 
     if (!result.success) {
-      reply.status(400).send({ error: result.error });
-      return;
+      return reply.status(400).send({ error: result.error });
     }
 
     reply.status(200).send({

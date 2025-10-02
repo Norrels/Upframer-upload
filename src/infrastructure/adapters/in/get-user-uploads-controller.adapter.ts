@@ -6,8 +6,7 @@ export class GetUserUploadsControllerAdapter {
 
   async handle(request: FastifyRequest, reply: FastifyReply) {
     if (!request.user) {
-      reply.status(401).send({ error: "User not authenticated" });
-      return;
+      return reply.status(401).send({ error: "User not authenticated" });
     }
 
     const result = await this.getUserUploadsUseCase.execute({
@@ -15,11 +14,10 @@ export class GetUserUploadsControllerAdapter {
     });
 
     if (!result.success) {
-      reply.status(400).send({ error: result.error });
-      return;
+      return reply.status(400).send({ error: result.error });
     }
 
-    reply.status(200).send({
+    return reply.status(200).send({
       success: true,
       uploads: result.uploads
     });

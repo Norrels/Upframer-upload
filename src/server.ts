@@ -82,30 +82,11 @@ app.get(
   }
 );
 
-app.get(
-  "/api/my-uploads",
-  {
-    preHandler: authMiddleware,
-  },
-  async (request, reply) => {
-    await getUserUploadsController.handle(request, reply);
-  }
-);
-
-app.get(
-  "/api/job/:jobId/status",
-  {
-    preHandler: authMiddleware,
-  },
-  async (request, reply) => {
-    await getJobStatusController.handle(request, reply);
-  }
-);
-
 const start = async () => {
   try {
     await connectRabbit();
     await updateStatusUseCase.execute();
+    await messageQueue.processDLQMessages();
     await app.listen({ host: "0.0.0.0", port: config.PORT });
     console.log("Server running on http://localhost:" + config.PORT);
   } catch (err) {

@@ -1,5 +1,4 @@
 import { JobRepository } from "../../domain/ports/out/persistence/job-repository";
-import { VideoJobData } from "../../domain/entities/video-job-data";
 
 export interface GetUserUploadsRequest {
   userId: string;
@@ -8,7 +7,7 @@ export interface GetUserUploadsRequest {
 export interface UserUploadResponse {
   jobId: string;
   createdAt: Date;
-  videoUrl: string;
+  outputPath: string;
   status: string;
 }
 
@@ -25,34 +24,37 @@ export interface GetUserUploadsPort {
 export class GetUserUploadsUseCase implements GetUserUploadsPort {
   constructor(private readonly jobRepository: JobRepository) {}
 
-  async execute(request: GetUserUploadsRequest): Promise<GetUserUploadsResponse> {
+  async execute(
+    request: GetUserUploadsRequest
+  ): Promise<GetUserUploadsResponse> {
     try {
       const userId = parseInt(request.userId);
 
       if (isNaN(userId)) {
         return {
           success: false,
-          error: "Invalid user ID"
+          error: "Invalid user ID",
         };
       }
 
       const jobs = await this.jobRepository.findJobsByUserId(userId);
 
-      const uploads: UserUploadResponse[] = jobs.map(job => ({
+      const uploads: UserUploadResponse[] = jobs.map((job) => ({
         jobId: job.id,
         createdAt: job.createdAt,
-        videoUrl: job.outputPath || job.videoUrl,
-        status: job.status
+        outputPath: job.outputPath,
+        status: job.status,
       }));
 
       return {
         success: true,
-        uploads
+        uploads,
       };
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : "Failed to get user uploads"
+        error:
+          error instanceof Error ? error.message : "Failed to get user uploads",
       };
     }
   }

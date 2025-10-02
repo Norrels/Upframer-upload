@@ -5,6 +5,7 @@ import { EmailNotificationPort } from "../../../../domain/ports/out/notification
 import { createChannel } from "./broker";
 import { processeStatusUpdate } from "./consumer/job-status-upated";
 import { despatchCreatedJob } from "./producer/job-created";
+import { processDLQMessages } from "./consumer/dlq-consumer";
 
 export class RabbitMQAdapter implements QueueProcessorPort {
   private channel: any;
@@ -29,5 +30,13 @@ export class RabbitMQAdapter implements QueueProcessorPort {
   async processorUpdateStatusMessage() {
     const channel = await this.getChannel();
     await processeStatusUpdate(this.repository, channel, this.emailNotification);
+  }
+
+  async processDLQMessages() {
+    if (!this.emailNotification) {
+      throw new Error("Email notification service is required for DLQ processing");
+    }
+    const channel = await this.getChannel();
+    await processDLQMessages(channel, this.emailNotification, this.repository);
   }
 }

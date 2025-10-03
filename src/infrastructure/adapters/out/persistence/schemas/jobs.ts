@@ -18,7 +18,7 @@ export const jobsTable = pgTable("jobs", {
   id: text()
     .primaryKey()
     .$defaultFn(() => createId()),
-  userId: integer().notNull(),
+  userId: varchar().notNull(),
   jobId: varchar({ length: 255 }).notNull().unique(),
   userEmail: varchar({ length: 255 }).notNull(),
   videoPath: varchar({ length: 2048 }).notNull(),

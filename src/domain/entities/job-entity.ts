@@ -1,7 +1,7 @@
 import z from "zod";
 
 export const JobEntitySchema = z.object({
-  userId: z.number().int().positive(),
+  userId: z.string().min(1),
   userEmail: z.email(),
   videoPath: z.url(),
   videoName: z.string(),

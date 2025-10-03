@@ -23,6 +23,7 @@ const envSchema = z.object({
   SMTP_SECURE: z.coerce.boolean().default(false),
   SMTP_USER: z.string().min(1, "SMTP_USER is required"),
   SMTP_PASS: z.string().min(1, "SMTP_PASS is required"),
+  API_URL: z.string().optional(),
 });
 
 const env = envSchema.safeParse(process.env);

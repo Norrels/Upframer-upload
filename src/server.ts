@@ -64,8 +64,8 @@ async function setupApp() {
       },
       servers: [
         {
-          url: `http://localhost:${config.PORT}`,
-          description: "Development server",
+          url: config.API_URL || `http://localhost:${config.PORT}`,
+          description: config.API_URL ? "Production server" : "Development server",
         },
       ],
       components: {

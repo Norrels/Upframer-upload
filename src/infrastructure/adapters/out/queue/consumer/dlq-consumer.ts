@@ -97,7 +97,7 @@ async function sendUserNotification(
   failureReason: string,
   retryCount: number
 ): Promise<void> {
-  const subject = `Erro no processamento do seu vídeo - ${message.videoName}`;
+  const subject = `Erro no processamento do seu vídeo`;
 
   const htmlContent = `
     <h2>Falha no Processamento do Vídeo</h2>

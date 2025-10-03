@@ -1,4 +1,9 @@
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import {
+  S3Client,
+  PutObjectCommand,
+  GetObjectCommand,
+} from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { Readable } from "node:stream";
 import {
   FileData,
@@ -68,6 +73,30 @@ export class S3FileStorageAdapter implements FileStoragePort {
         reject(error);
       });
     });
+  }
+
+  async getPresignedUrl(
+    fileUrl: string,
+    expiresIn: number = 3600
+  ): Promise<string> {
+    try {
+      const url = new URL(fileUrl);
+      const key = url.pathname.substring(1);
+
+      const command = new GetObjectCommand({
+        Bucket: this.bucketName,
+        Key: key,
+      });
+
+      const presignedUrl = await getSignedUrl(this.s3Client, command, {
+        expiresIn,
+      });
+
+      return presignedUrl;
+    } catch (error) {
+      console.error("Error generating presigned URL:", error);
+      throw new Error(`Failed to generate presigned URL: ${error}`);
+    }
   }
 
   private getContentType(filename: string): string {

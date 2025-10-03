@@ -38,15 +38,16 @@ export async function authMiddleware(
       });
     }
 
-    const decoded = jwt.verify(token, config.JWT_SECRET) as any;
-    console.log("Token decoded successfully:", JSON.stringify(decoded, null, 2));
+    const decoded = jwt.verify(token, config.JWT_SECRET) as {userId: string, email: string, iat: number, exp: number};
 
-    // Mapeia diferentes formatos de payload
-    const userId = decoded.userId || decoded.id || decoded.sub || decoded.user_id;
-    const email = decoded.email || decoded.user_email;
+    const userId = decoded.userId;
+    const email = decoded.email;
 
     if (!userId || !email) {
-      console.error("Invalid payload structure. Expected userId and email, got:", decoded);
+      console.error(
+        "Invalid payload structure. Expected userId and email, got:",
+        decoded
+      );
       return reply.status(401).send({
         error: "Invalid token payload - missing userId or email",
         code: "INVALID_TOKEN",

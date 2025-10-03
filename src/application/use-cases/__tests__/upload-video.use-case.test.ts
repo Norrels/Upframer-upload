@@ -116,7 +116,7 @@ describe("UploadVideoUseCase", () => {
       await uploadVideoUseCase.execute(mockRequest);
 
       expect(mockRepository.saveJob).toHaveBeenCalledWith({
-        userId: 789,
+        userId: "789",
         userEmail: "test@example.com",
         jobId: expect.any(String),
         videoName: expect.stringContaining("test.mp4"),

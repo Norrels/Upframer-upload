@@ -5,4 +5,5 @@ export interface FileData {
 
 export interface FileStoragePort {
   saveFile(fileData: FileData, filename: string): Promise<string>;
+  getPresignedUrl?(fileUrl: string, expiresIn?: number): Promise<string>;
 }

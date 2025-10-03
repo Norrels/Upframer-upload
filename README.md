@@ -148,6 +148,136 @@ O sistema é extensível através de novos adapters sem modificar o código exis
 3. **Consulta**: Use Case busca dados no repositório
 4. **Resposta**: Dados são retornados formatados
 
+## 🌐 Endpoints Disponíveis
+
+### **Health Check**
+```http
+GET /health
+```
+Verifica se a API está funcionando.
+
+**Resposta:**
+```json
+"OK"
+```
+
+---
+
+### **Upload de Vídeo**
+```http
+POST /api/upload-video
+Authorization: Bearer <token>
+Content-Type: multipart/form-data
+```
+
+**Parâmetros:**
+- `file`: Arquivo de vídeo (MP4, máx. 100MB)
+
+**Resposta de Sucesso (200):**
+```json
+{
+  "message": "Video uploaded successfully",
+  "videoId": "clxyz123abc",
+  "filename": "video.mp4",
+  "status": "pending"
+}
+```
+
+**Respostas de Erro:**
+- `400`: Erro na validação do arquivo
+- `401`: Token de autenticação inválido
+
+---
+
+### **Listar Uploads do Usuário**
+```http
+GET /api/my-uploads
+Authorization: Bearer <token>
+```
+
+**Resposta de Sucesso (200):**
+```json
+{
+  "success": true,
+  "uploads": [
+    {
+      "jobId": "clxyz123abc",
+      "status": "COMPLETED",
+      "createdAt": "2024-01-15T10:30:00Z"
+    }
+  ]
+}
+```
+
+**Status possíveis:**
+- `PENDING`: Aguardando processamento
+- `PROCESSING`: Em processamento
+- `COMPLETED`: Processamento concluído
+- `FAILED`: Falha no processamento
+
+---
+
+### **Consultar Status de Job**
+```http
+GET /api/job/{jobId}/status
+Authorization: Bearer <token>
+```
+
+**Parâmetros:**
+- `jobId`: ID do job retornado no upload
+
+**Resposta de Sucesso (200):**
+```json
+{
+  "success": true,
+  "job": {
+    "id": "clxyz123abc",
+    "videoUrl": "https://bucket.s3.amazonaws.com/video.mp4",
+    "outputPath": "/path/to/processed/output.zip",
+    "status": "completed",
+    "createdAt": "2024-01-15T10:30:00Z"
+  }
+}
+```
+
+**Respostas de Erro:**
+- `401`: Token inválido
+- `404`: Job não encontrado
+
+---
+
+### **Download de Arquivo Processado**
+```http
+GET /api/job/{jobId}/download
+Authorization: Bearer <token>
+```
+
+**Parâmetros:**
+- `jobId`: ID do job com status `COMPLETED`
+
+**Resposta de Sucesso (200):**
+```json
+{
+  "success": true,
+  "downloadUrl": "https://bucket.s3.amazonaws.com/output.zip"
+}
+```
+
+**Respostas de Erro:**
+- `400`: Job ainda não processado
+- `401`: Token inválido
+- `403`: Acesso negado
+- `404`: Job ou arquivo não encontrado
+
+---
+
+### **Documentação Interativa**
+```http
+GET /docs
+```
+Acessa a documentação Swagger/OpenAPI interativa da API.
+
+
 ## 📋 Scripts Disponíveis
 
 ```bash

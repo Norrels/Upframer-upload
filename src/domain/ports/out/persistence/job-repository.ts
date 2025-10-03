@@ -6,6 +6,6 @@ export interface JobRepository {
   findJobById(jobId: string): Promise<VideoJobData | null>;
   saveJob(jobData: JobEntity): Promise<void>;
   updateJob(id: string, status: JobStatus, outputPath?: string): Promise<void>;
-  findJobsByUserId(userId: number): Promise<VideoJobData[]>;
+  findJobsByUserId(userId: string): Promise<VideoJobData[]>;
   getUserEmailByJobId(jobId: string): Promise<string | null>;
 }

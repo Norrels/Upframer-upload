@@ -9,7 +9,7 @@ export interface JwtPayload {
   exp?: number;
 }
 
-declare module 'fastify' {
+declare module "fastify" {
   interface FastifyRequest {
     user?: JwtPayload;
   }
@@ -23,39 +23,49 @@ export async function authMiddleware(
     const authHeader = request.headers.authorization;
 
     if (!authHeader) {
-      reply.status(401).send({
+      return reply.status(401).send({
         error: "Authorization header is required",
-        code: "MISSING_TOKEN"
+        code: "MISSING_TOKEN",
       });
-      return;
     }
 
     const token = authHeader.replace(/^Bearer\s+/, "");
 
     if (!token) {
-      reply.status(401).send({
+      return reply.status(401).send({
         error: "Token is required",
-        code: "MISSING_TOKEN"
+        code: "MISSING_TOKEN",
       });
-      return;
     }
 
-    const decoded = jwt.verify(token, config.JWT_SECRET) as JwtPayload;
+    const decoded = jwt.verify(token, config.JWT_SECRET) as {userId: string, email: string, iat: number, exp: number};
 
-    if (!decoded.userId || !decoded.email) {
-      reply.status(401).send({
-        error: "Invalid token payload",
-        code: "INVALID_TOKEN"
+    const userId = decoded.userId;
+    const email = decoded.email;
+
+    if (!userId || !email) {
+      console.error(
+        "Invalid payload structure. Expected userId and email, got:",
+        decoded
+      );
+      return reply.status(401).send({
+        error: "Invalid token payload - missing userId or email",
+        code: "INVALID_TOKEN",
       });
-      return;
     }
 
-    request.user = decoded;
+    request.user = {
+      userId,
+      email,
+      iat: decoded.iat,
+      exp: decoded.exp,
+    };
   } catch (error) {
+    console.error("Error during token verification:", error);
     if (error instanceof jwt.JsonWebTokenError) {
       reply.status(401).send({
         error: "Invalid token",
-        code: "INVALID_TOKEN"
+        code: "INVALID_TOKEN",
       });
       return;
     }
@@ -63,14 +73,14 @@ export async function authMiddleware(
     if (error instanceof jwt.TokenExpiredError) {
       reply.status(401).send({
         error: "Token expired",
-        code: "TOKEN_EXPIRED"
+        code: "TOKEN_EXPIRED",
       });
       return;
     }
 
     reply.status(500).send({
       error: "Internal server error",
-      code: "INTERNAL_ERROR"
+      code: "INTERNAL_ERROR",
     });
   }
 }

@@ -10,15 +10,13 @@ export class GetJobStatusControllerAdapter {
 
   async handle(request: FastifyRequest, reply: FastifyReply) {
     if (!request.user) {
-      reply.status(401).send({ error: "User not authenticated" });
-      return;
+      return reply.status(401).send({ error: "User not authenticated" });
     }
 
     const { jobId } = request.params as GetJobStatusParams;
 
     if (!jobId) {
-      reply.status(400).send({ error: "Job ID is required" });
-      return;
+      return reply.status(400).send({ error: "Job ID is required" });
     }
 
     const result = await this.getJobStatusUseCase.execute({
@@ -27,11 +25,10 @@ export class GetJobStatusControllerAdapter {
     });
 
     if (!result.success) {
-      reply.status(404).send({ error: result.error });
-      return;
+      return reply.status(404).send({ error: result.error });
     }
 
-    reply.status(200).send({
+    return reply.status(200).send({
       success: true,
       job: result.job
     });

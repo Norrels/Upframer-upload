@@ -15,6 +15,7 @@ export class JobRepositoryDrizzle implements JobRepository {
         outputPath: jobsTable.outputPath,
         status: jobsTable.status,
         createdAt: jobsTable.createdAt,
+        userId: jobsTable.userId,
       })
       .from(jobsTable)
       .where(eq(jobsTable.jobId, jobId))
@@ -40,7 +41,7 @@ export class JobRepositoryDrizzle implements JobRepository {
     await db.insert(jobsTable).values(jobData);
   }
 
-  async findJobsByUserId(userId: number): Promise<VideoJobData[]> {
+  async findJobsByUserId(userId: string): Promise<VideoJobData[]> {
     const results = await db
       .select({
         id: jobsTable.jobId,
@@ -48,6 +49,7 @@ export class JobRepositoryDrizzle implements JobRepository {
         outputPath: jobsTable.outputPath,
         status: jobsTable.status,
         createdAt: jobsTable.createdAt,
+        userId: jobsTable.userId,
       })
       .from(jobsTable)
       .where(eq(jobsTable.userId, userId));

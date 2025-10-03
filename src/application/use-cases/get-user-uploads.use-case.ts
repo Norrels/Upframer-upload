@@ -28,14 +28,7 @@ export class GetUserUploadsUseCase implements GetUserUploadsPort {
     request: GetUserUploadsRequest
   ): Promise<GetUserUploadsResponse> {
     try {
-      const userId = parseInt(request.userId);
-
-      if (isNaN(userId)) {
-        return {
-          success: false,
-          error: "Invalid user ID",
-        };
-      }
+      const userId = request.userId;
 
       const jobs = await this.jobRepository.findJobsByUserId(userId);
 

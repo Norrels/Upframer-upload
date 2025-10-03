@@ -4,7 +4,7 @@ import { JobEntitySchema, JobEntity } from "../job-entity";
 describe("JobEntity", () => {
   describe("JobEntitySchema validation", () => {
     const validJobData = {
-      userId: 1,
+      userId: "1",
       userEmail: "test@example.com",
       videoPath: "https://example.com/videos/test.mp4",
       videoName: "test-video.mp4",
@@ -23,7 +23,7 @@ describe("JobEntity", () => {
     it("should parse and return typed job entity", () => {
       const jobEntity: JobEntity = JobEntitySchema.parse(validJobData);
 
-      expect(jobEntity.userId).toBe(1);
+      expect(jobEntity.userId).toBe("1");
       expect(jobEntity.userEmail).toBe("test@example.com");
       expect(jobEntity.videoPath).toBe("https://example.com/videos/test.mp4");
       expect(jobEntity.videoName).toBe("test-video.mp4");
@@ -31,26 +31,20 @@ describe("JobEntity", () => {
     });
 
     describe("userId validation", () => {
-      it("should reject negative userId", () => {
-        const invalidData = { ...validJobData, userId: -1 };
+      it("should accept valid string userId", () => {
+        const validData = { ...validJobData, userId: "123" };
+        const result = JobEntitySchema.safeParse(validData);
+        expect(result.success).toBe(true);
+      });
+
+      it("should reject empty userId", () => {
+        const invalidData = { ...validJobData, userId: "" };
         const result = JobEntitySchema.safeParse(invalidData);
         expect(result.success).toBe(false);
       });
 
-      it("should reject zero userId", () => {
-        const invalidData = { ...validJobData, userId: 0 };
-        const result = JobEntitySchema.safeParse(invalidData);
-        expect(result.success).toBe(false);
-      });
-
-      it("should reject non-integer userId", () => {
-        const invalidData = { ...validJobData, userId: 1.5 };
-        const result = JobEntitySchema.safeParse(invalidData);
-        expect(result.success).toBe(false);
-      });
-
-      it("should reject string userId", () => {
-        const invalidData = { ...validJobData, userId: "1" };
+      it("should reject number userId", () => {
+        const invalidData = { ...validJobData, userId: 123 };
         const result = JobEntitySchema.safeParse(invalidData);
         expect(result.success).toBe(false);
       });

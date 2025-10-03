@@ -1,162 +1,198 @@
-# Upframer Infrastructure
+# Upframer Upload
 
-Infraestrutura como código (IaC) para a plataforma Upframer utilizando Pulumi e AWS.
+## 📖 Sobre o Projeto
 
-## Visão Geral
+O **Upframer Upload** é um sistema de upload e processamento de vídeos construído com uma arquitetura hexagonal com principios de clean architecture, utilizando TypeScript, Fastify.
 
-Este projeto define a infraestrutura completa da aplicação Upframer na AWS usando Pulumi com TypeScript. A arquitetura é baseada em microserviços containerizados executando no Amazon ECS Fargate.
+O sistema permite o upload de vídeos pelos usuários, processa esses vídeos de forma assíncrona através de filas de mensagens e fornece endpoints para acompanhar o status do processamento e fazer download dos arquivos processados.
 
-## Arquitetura
+## 🏗️ Arquitetura
 
-### Serviços
+### Padrão Arquitetural: Hexagonal Architecture
 
-- **Upload Service** (Porta 3333): Responsável pelo upload e gerenciamento de arquivos
-- **Process Service** (Porta 3334): Processamento de vídeos e jobs assíncronos
-- **Auth Service** (Porta 3335): Autenticação e autorização de usuários
-- **RabbitMQ** (Porta 5672/15672): Message broker para comunicação entre serviços
+O projeto implementa a **Arquitetura Hexagonal**, que organiza o código em camadas concêntricas, onde as camadas internas não conhecem as externas:
 
-### Componentes AWS
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    Infrastructure                           │
+│  ┌─────────────────────────────────────────────────────┐    │
+│  │                   Application                       │    │
+│  │  ┌─────────────────────────────────────────────┐    │    │
+│  │  │               Domain                        │    │    │
+│  │  │  ┌─────────────────────────────────────┐    │    │    │
+│  │  │  │            Entities                 │    │    │    │
+│  │  │  │         Value Objects               │    │    │    │
+│  │  │  └─────────────────────────────────────┘    │    │    │
+│  │  └─────────────────────────────────────────────┘    │    │
+│  └─────────────────────────────────────────────────────┘    │
+└─────────────────────────────────────────────────────────────┘
+```
 
-- **ECS Fargate**: Orquestração de containers
-- **Application Load Balancer**: Distribuição de tráfego HTTP
-- **Network Load Balancer**: Distribuição de tráfego TCP (RabbitMQ)
-- **S3**: Armazenamento de arquivos
-- **IAM Roles**: Permissões para serviços ECS
-
-## Pré-requisitos
-
-- [Node.js](https://nodejs.org/) (versão 18+)
-- [Pulumi CLI](https://www.pulumi.com/docs/get-started/install/)
-- [AWS CLI](https://aws.amazon.com/cli/) configurado
-- Docker (para build das imagens)
-
-## Estrutura do Projeto
+### Estrutura de Diretórios
 
 ```
 src/
-├── cluster.ts              # Configuração do cluster ECS
-├── load-balancer.ts        # Load balancers (ALB e NLB)
-├── config/
-│   └── env.ts              # Configurações de ambiente
-├── images/
-│   └── images.ts           # Definições das imagens Docker
-├── roles/
-│   └── ecs-roles.ts        # IAM roles para ECS
-├── services/
-│   ├── auth.ts             # Serviço de autenticação
-│   ├── process.ts          # Serviço de processamento
-│   ├── rabbitmq.ts         # Message broker
-│   └── upload.ts           # Serviço de upload
-└── storage/
-    └── s3.ts               # Configuração do S3
+├── domain/                    # Camada de Domínio
+│   ├── entities/             # Entidades de negócio
+│   ├── value-objects/        # Objetos de valor
+│   └── ports/                # Interfaces (contratos)
+│       ├── upload-video.port.ts
+│       └── out/
+│           ├── storage/
+│           ├── persistence/
+│           ├── notification/
+│           └── queue/
+├── application/              # Camada de Aplicação
+│   └── use-cases/           # Casos de uso
+├── infrastructure/          # Camada de Infraestrutura
+│   ├── adapters/
+│   │   ├── in/             # Adapters de entrada (Controllers)
+│   │   └── out/            # Adapters de saída
+│   │       ├── storage/    # Armazenamento de arquivos
+│   │       ├── persistence/# Banco de dados
+│   │       ├── notification/# Notificações
+│   │       └── queue/      # Filas de mensagens
+│   └── middleware/         # Middlewares
+├── config/                 # Configurações
+└── utils/                  # Utilitários
 ```
 
-## Endpoints
+### Camadas da Arquitetura
 
-Após o deploy, os seguintes endpoints estarão disponíveis:
+#### 1. **Domain (Domínio)**
+- **Entities**: Modelos de negócio (`Video`, `JobEntity`)
+- **Value Objects**: Objetos imutáveis (`VideoId`, `VideoName`)
+- **Ports**: Interfaces que definem contratos (`UploadVideoPort`, `FileStoragePort`)
 
-- **Upload Service**: `http://<alb-dns>:3333`
-- **Process Service**: `http://<alb-dns>:3334`
-- **Auth Service**: `http://<alb-dns>:3335`
-- **RabbitMQ Admin**: `http://<alb-dns>:15672`
+#### 2. **Application (Aplicação)**
+- **Use Cases**: Implementam regras de negócio específicas
+  - `UploadVideoUseCase`: Orquestra o upload de vídeos
+  - `GetUserUploadsUseCase`: Recupera uploads do usuário
+  - `GetJobStatusUseCase`: Consulta status de processamento
+  - `DownloadFileUseCase`: Gerencia download de arquivos
 
-## Monitoramento
+#### 3. **Infrastructure (Infraestrutura)**
+- **Adapters In**: Controllers que recebem requisições HTTP
+- **Adapters Out**: Implementações concretas dos ports
+  - `LocalFileStorageAdapter` / `S3FileStorageAdapter`: Armazenamento
+  - `JobRepositoryDrizzle`: Persistência com Drizzle ORM
+  - `RabbitMQAdapter`: Fila de mensagens
+  - `EmailNotificationAdapter`: Notificações por email
 
-### Health Checks
+## 🎯 Princípios e Padrões
 
-Todos os serviços possuem health checks configurados:
+### 1. **Dependency Inversion Principle (DIP)**
+As camadas internas definem interfaces (ports) que são implementadas pelas camadas externas, invertendo as dependências.
 
-- **Path**: `/health`
-- **Interval**: 30 segundos
-- **Timeout**: 5 segundos
-- **Healthy Threshold**: 2
-- **Unhealthy Threshold**: 5
+```typescript
+// Domain define a interface
+export interface FileStoragePort {
+  saveFile(fileData: FileData, filename: string): Promise<string>;
+}
 
-### Logs
-
-Os logs dos serviços podem ser visualizados no AWS CloudWatch Logs.
-
-## Segurança
-
-### S3 Bucket
-
-- **Acesso Público**: Bloqueado
-- **Encriptação**: AES256
-- **Versionamento**: Desabilitado
-- **CORS**: Configurado para operações necessárias
-
-### Network
-
-- **Load Balancers**: Públicos para acesso externo
-- **ECS Tasks**: Em rede privada
-- **Security Groups**: Configurados por serviço
-
-## Configuração
-
-### 1. Instalação de Dependências
-
-```bash
-npm install / bun install
+// Infrastructure implementa
+export class LocalFileStorageAdapter implements FileStoragePort {
+  async saveFile(fileData: FileData, filename: string): Promise<string> {
+    // implementação...
+  }
+}
 ```
 
-### 2. Configuração do Pulumi
+### 2. **Single Responsibility Principle (SRP)**
+Cada classe tem uma única responsabilidade:
+- Use Cases: Orquestram regras de negócio
+- Adapters: Fazem a tradução entre camadas
+- Entities: Representam conceitos de negócio
+
+### 3. **Open/Closed Principle (OCP)**
+O sistema é extensível através de novos adapters sem modificar o código existente.
+
+### 4. **Ports and Adapters Pattern**
+- **Ports**: Interfaces que definem o que pode ser feito
+- **Adapters**: Implementações específicas de como é feito
+
+## 🔧 Tecnologias Utilizadas
+
+### Core
+- **[Node.js](https://nodejs.org/pt)** com **[TypeScript](https://www.typescriptlang.org/)**
+- **[Fastify](https://fastify.dev/)** - Framework web rápido e eficiente
+- **[Drizzle ORM](https://orm.drizzle.team/)** - ORM type-safe para TypeScript
+
+### Armazenamento
+- **File System Local** - Para desenvolvimento
+- **AWS S3** - Para produção (preparado)
+- **PostgreSQL** com **[Neon](https://neon.com/)** - Banco de dados
+
+### Mensageria
+- **[RabbitMQ](https://www.rabbitmq.com/)** - Fila de mensagens para processamento assíncrono
+
+### Documentação
+- **[Swagger/OpenAPI](https://swagger.io/resources/open-api/)** - Documentação da API
+
+### Testes
+- **[Vitest](https://vitest.dev/)** - Framework de testes
+
+## 🚀 Como Funciona
+
+### Fluxo de Upload
+1. **Recebimento**: Controller recebe arquivo via HTTP
+2. **Validação**: Middleware de autenticação valida usuário
+3. **Processamento**: Use Case orquestra o armazenamento
+4. **Persistência**: Job é salvo no banco de dados
+5. **Enfileiramento**: Mensagem é enviada para RabbitMQ
+6. **Notificação**: Sistema notifica em caso de erro (assíncrono)
+
+### Fluxo de Consulta
+1. **Requisição**: Cliente consulta status ou lista uploads
+2. **Autenticação**: Middleware valida permissões
+3. **Consulta**: Use Case busca dados no repositório
+4. **Resposta**: Dados são retornados formatados
+
+## 📋 Scripts Disponíveis
 
 ```bash
-pulumi login
+# Desenvolvimento
+npm run dev              # Executa em modo desenvolvimento
+npm run build            # Compila TypeScript
+npm start               # Executa versão compilada
 
-pulumi stack select <stack-name>
+# Testes
+npm test                # Executa testes
+npm run test:watch      # Executa testes em modo watch
+npm run test:coverage   # Executa testes com cobertura
+
+# Banco de dados
+npm run migrate:generate # Gera migrações
+npm run migrate:migrate  # Executa migrações
+npm run migrate:push     # Sincroniza schema
+npm run studio          # Abre Drizzle Studio
 ```
 
-### 3. Variáveis de Ambiente
+## 🔧 Configuração
 
-Configure as seguintes variáveis de ambiente no Pulumi:
+O projeto utiliza variáveis de ambiente para configuração. Principais variáveis:
 
-```bash
-# AWS Credentials
-pulumi config set aws:accessKey <your-access-key>
-pulumi config set aws:secretKey <your-secret-key> --secret
-pulumi config set aws:sessionToken <your-session-token> --secret
-pulumi config set aws:region us-east-1
-
-# Database URLs
-pulumi config set DATABASE_URL_UPLOAD <upload-db-url> --secret
-pulumi config set DATABASE_URL_AUTH <auth-db-url> --secret
-
-# JWT
-pulumi config set JWT_SECRET <jwt-secret> --secret
-
-# S3
-pulumi config set AWS_BUCKET_NAME <bucket-name>
-
-# SMTP
-pulumi config set SMTP_HOST <smtp-host>
-pulumi config set SMTP_PORT <smtp-port>
-pulumi config set SMTP_SECURE <true/false>
-pulumi config set SMTP_USER <smtp-user>
-pulumi config set SMTP_PASS <smtp-pass> --secret
+```env
+# Banco de dados
+DATABASE_URL=postgresql://user:pass@host:port/db
 
 # RabbitMQ
-pulumi config set RABBITMQ_DEFAULT_USER admin
-pulumi config set RABBITMQ_DEFAULT_PASS admin --secret
-```
+RABBITMQ_URL=amqp://admin:admin@localhost:5672
+RABBITMQ_QUEUE_CREATED=job-created
+RABBITMQ_QUEUE_STATUS_UPDATED=job-updated
 
+# AWS S3 (opcional)
+AWS_ACCESS_KEY_ID=your-access-key
+AWS_SECRET_ACCESS_KEY=your-secret-key
+AWS_REGION=east-us-1
+AWS_BUCKET_NAME=your-bucker-name
 
-## Deploy
+# Email
+SMTP_HOST=your-smtp-host
+SMTP_PORT=your-smpt-port
+SMTP_USER=your-smtp-user
+SMTP_PASS=your-smtp-pass
 
-### Deploy Completo
-
-```bash
-pulumi up
-```
-
-### Preview das Mudanças
-
-```bash
-pulumi preview
-```
-
-### Destroy da Infraestrutura
-
-```bash
-pulumi destroy
+# JWT
+JWT_SECRET=
 ```
